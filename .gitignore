@@ -6,7 +6,6 @@
 
 # extra code
 supplementary/
-solution/
 
 # pip virtual environment
 venv_make_docs/
