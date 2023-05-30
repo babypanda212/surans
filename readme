@@ -1,0 +1,16 @@
+1. Call main.py
+	Das ist ein prerun ohne stochastik
+	Der letzte Zeitschritt wird als IC gespeichert
+2. Wenn ferting call supplementary_code/process_test_prerun.py
+	Es erzeugt ein Video der u Komponente und plotted TKE
+3. Gehe ins lib/params_class_base.py
+4. Setze:
+	save_ini_cond: bool = False;
+	load_ini_cond: bool = True;
+
+	stochastic_phi: bool = True;
+5. Gehe ins main.py
+	Setze: params.solStringName = ‚test_prerun_stoch‘
+6. call main.py
+	wenns abstuerzt, setze dt = 1
+7. call supplementary/process_test_prerun_stoch.py
