@@ -1,6 +1,8 @@
 # Stochastic Unsteady Reynolds Average Navier-Stokes Model
-In this code a stochastic unsteady Reynolds average Navier-Stokes is defined. The corresponding publications is 
+In this code a stochastic unsteady Reynolds average Navier-Stokes model is defined. The corresponding publications is 
 "Simulating the unsteady stable boundary layer with a stochastic stability equation" by Vyacheslav Boyko and Nikki Vercauteren.
+
+The code was developed by Vyacheslav Boyko.
 
 ## How to setup and run the model
 1. Clone repository
@@ -41,3 +43,5 @@ Set in the file 'lib/params_class_base.py' the value of 'load_ini_cond' and 'sto
 * The directory 'supplementary_code' includes scripts which exemplary show how to visualize the model output.
 * Please be aware that these scripts were only tested on a WSL (Windows subsystem for Linux) system. Fenics can not be installed with conda on a
 Windows machine. A workaround is using WSL.
+
+Contact: Nikki Vercauteren, nikki.vercauteren@geo.uio.no
