@@ -1,5 +1,5 @@
 # Stochastic Unsteady Reynolds Average Navier-Stokes Model
-In this code a stochastic unsteady Reynolds average Navier-Stokes model is defined. The corresponding publications is 
+In this code a stochastic unsteady Reynolds average Navier-Stokes model is defined. The corresponding publication is 
 "Simulating the unsteady stable boundary layer with a stochastic stability equation" by Vyacheslav Boyko and Nikki Vercauteren.
 
 The code was developed by Vyacheslav Boyko.
