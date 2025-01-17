@@ -32,9 +32,51 @@ def solve_turb_model(fparams, params, output):
     
     # define initial profiles
     u_n, v_n, T_n, k_n = ic.def_initial_cnditions(fparams.Q, mesh, params)
+
+    # Create a vertical grid for plotting
+    z = np.flipud(mesh.coordinates())  # Flip the vertical grid
     
+    # debugging attempts
+    cfl_values = ic.calculate_cfl(z,u_n,params.dt)
+    
+    print("Initial u:", u_n.vector().get_local())
+    # print("Initial TKE", k_n.vector().get_local())
+
+
+    # Plot each profile
+    plt.figure(figsize=(10, 6))
+
+    plt.subplot(2, 2, 1)
+    plt.plot(u_n.vector().get_local(), z)
+    plt.xlabel("u (m/s)")
+    plt.ylabel("Height (m)")
+    plt.title("Initial Velocity u")
+
+    plt.subplot(2, 2, 2)
+    plt.plot(v_n.vector().get_local(), z)
+    plt.xlabel("v (m/s)")
+    plt.ylabel("Height (m)")
+    plt.title("Initial Velocity v")
+
+    plt.subplot(2, 2, 3)
+    plt.plot(T_n.vector().get_local(), z)
+    plt.xlabel("Temperature (K)")
+    plt.ylabel("Height (m)")
+    plt.title("Initial Temperature")
+
+    plt.subplot(2, 2, 4)
+    plt.plot(k_n.vector().get_local(), z)
+    plt.xlabel("TKE (m²/s²)")
+    plt.ylabel("Height (m)")
+    plt.title("Initial Turbulent Kinetic Energy")
+
+    plt.tight_layout()
+    plt.show()
+
     # setup the weak formulation of the equations
     F = fut.weak_formulation(fparams, params, u_n, v_n, T_n, k_n)
+
+    print("Computed weak formulation fo the equations")
     
     # stochastic solver
     stoch_solver, params = sm.initialize_SDEsolver(params)

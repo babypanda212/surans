@@ -40,8 +40,10 @@ def solution_loop(solver, stoch_solver, params, output, fparams, u_n, v_n, T_n, 
     for i in tqdm(range(params.SimEnd)):
         try:
             solver.solve()
-        except:
-            print("\n Solver crashed...")
+        except Exception as e:
+            print(f"\n Solver crashed at timestep {i} due to: {e}")
+            import traceback
+            traceback.print_exc()
             break
         
         # get variables to export
@@ -122,13 +124,15 @@ def solution_loop(solver, stoch_solver, params, output, fparams, u_n, v_n, T_n, 
         u_now, v_now, Kh_now = wo.calc_variables_np(params, fparams, us, vs)
         
         # solve temperature at the ground
-        Tg = seb.RHS_surf_balance_euler(Tg_n, fparams, params, Ts, ks, u_now, v_now, Kh_now)      
+        # Tg = seb.RHS_surf_balance_euler(Tg_n, fparams, params, Ts, ks, u_now, v_now, Kh_now)      
         
         # update temperature for the ODE
-        Tg_n = np.copy(Tg)
+        # Tg_n = np.copy(Tg)
         
+        Tg_n -= 0.25 * params.dt / 3600  # Cooling per timestep
+
         # update temperature for the PDE
-        T_D_low.value = np.copy(Tg)
+        T_D_low.value = np.copy(Tg_n)
         
         # ugdate boundary conditions
         seb.update_tke_at_the_surface(fparams, params, u_now, v_now )

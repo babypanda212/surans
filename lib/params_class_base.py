@@ -13,12 +13,12 @@ class Parameters:
     stochastic_phi: bool = False         # turn on the stochastic mixing length
         
     # file name for save
-    solStringName : str = 'test_run'
-    initCondStr : str = 'init_condition/test_run'
+    solStringName : str = 'ini_wind'
+    initCondStr : str = 'init_condition/test_gabls_wind'
     
-    T_end_h: float = 1                      # hour
+    T_end_h: float = 9                      # hour
     T_end  : float = T_end_h * 3600           # seconds
-    dt     : float = 5                        # seconds; make good choice: (1, 2, 3, 4, 5, 6, 10, 20) / (10)
+    dt     : float = 1                        # seconds; make good choice: (1, 2, 3, 4, 5, 6, 10, 20) / (10)
     SimEnd : int   = int(T_end / dt)          # number of time steps
     
     # what time steps to save
@@ -31,26 +31,26 @@ class Parameters:
     s_Nz  : int   = 1024   # number of points in stochastic domain
     z0  : float = 0.044   # roughness length in meter
     z0h : float = z0*0.1  # roughness length for heat in meter
-    H   : float = 300.0   # domain height in meters  ! should be H > z_l * s_dom_ext
+    H   : float = 400.0   # domain height in meters  ! should be H > z_l * s_dom_ext
     
     omega   : float = (2*np.pi)/(24*60*60)         # angular earth velocity
     theta_m : float = 290                # restoring temperature of peat soil
-    T_ref   : float = 300                # reference potetial temperature [K]
-    rho     : float = 1.225              # air density kg/m**3 at 15 C
+    T_ref   : float = 263.5                # reference potetial temperature [K]
+    rho     : float = 1.3223              # air density kg/m**3 at 15 C
     C_p     : float = 1005               # specific heat capacity at constant pressure of air
     C_g     : float = 0.95*(1.45 * 3.58 * 1e+6 / 2 / omega)**0.5   # heat capacity of ground per unit area
     sig     : float = 5.669e-8           # non-dimensional Stefan-Boltzmann constant
     Qc      : float = 0.0                # the cloud fraction
     Qa      : float = 0.003              # specific humidity [g kg^-1]
-    Tg_n    : float = 300                # temperature initial value at the ground [K]. Will be set later
+    Tg_n    : float = 265                # temperature initial value at the ground [K]. Will be set later
     R_n     : float = -30
     k_m     : float = 1.18 * omega      # the soil heat transfer coefficient
     
     # Geostrophic wind forcing. If V_g not "0.0" one need new initial conditions
-    U_top   : float = 5.0         # u geostrophic wind
+    U_top   : float = 8.0        # u geostrophic wind
     V_top   : float = 0.0                # v geostrophic wind
 
-    latitude : float = 40                                                # latitude in grad
+    latitude : float = 73                                                # latitude in grad
     f_c      : float = 2 * 7.27 * 1e-5 * np.sin(latitude * np.pi / 180)  # coriolis parameter
     gamma    : float = 0.01                                              # atmospheric lapse rate at upper edge of ABL in K/m    
  
@@ -64,7 +64,7 @@ class Parameters:
     g        : float = 9.81          # gravitational acceleration on Earth
     beta     : float = g / T_ref     # for computing the Brunt-Vaisala frequency
     alpha_e  : float = 0.1           # dissipation parametrization constant
-    kappa    : float = 0.41          # von Karman's constant
+    kappa    : float = 0.4          # von Karman's constant
     
     # stochastic model specific parameter 
     d         : float = -0.07                # submesoscale intensity. d=0 is estimated from FLOSS2 data set 

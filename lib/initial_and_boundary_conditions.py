@@ -1,6 +1,7 @@
 # standard imports
 import numpy as np
 from fenics import *
+from scipy.interpolate import CubicSpline
 
 # project related imports
 from lib import fenics_utility_functions as fut 
@@ -45,11 +46,16 @@ def def_initial_cnditions(Q, mesh, params):
         t1.vector().set_local(np.flipud(0*np.ones(Nz)))
         v_n = project(t1, Q)
         
-        t1.vector().set_local(np.flipud(initial_T0(z, params.T_ref, 200)))
+        t1.vector().set_local(np.flipud(initial_T0(z, params.Tg_n, 100)))
         T_n = project(t1, Q)
         
-        t1.vector().set_local(np.flipud(initial_k0(params, z, U_top, z0, H)+0.01))
+        t1.vector().set_local(np.flipud(initial_k0(z)))
         k_n = project(t1, Q)
+
+        # t1.vector().set_local(np.flipud(initial_k0(params, z, U_top, z0, H)+0.01))
+        # k_n = project(t1, Q)
+
+        
     
     #import matplotlib.pyplot as plt
     #plt.plot((initial_u0(z, U_top, z0, params)), z)
@@ -109,8 +115,8 @@ def def_boundary_conditions(fparams, params):
     
         u_D_low = Expression('value', degree=0, value=0.0)
         v_D_low = Expression('value', degree=0, value=0.0)
-        T_D_low = Expression('value', degree=0, value=params.T_ref)
-        k_D_low = Expression('value', degree=0, value=initial_k0(params, z0, U_top, z0, 200))
+        T_D_low = Expression('value', degree=0, value=params.Tg_n)
+        k_D_low = Expression('value', degree=0, value=initial_k0(z0))
         
         #TODO: Find upper boundary condition for TKE. Placeholder TKE(H)=0
         k_D_high = Expression('value', degree=0, value=0.0001)
@@ -132,7 +138,7 @@ def def_boundary_conditions(fparams, params):
         
         bc = [bcu_ground, bcv_ground, bcT_ground, bck_ground, bcv_top]
         
-        Tg_n = params.T_ref
+        Tg_n = params.Tg_n
     
     
     # writing out the fenics parameters
@@ -153,10 +159,19 @@ def def_boundary_conditions(fparams, params):
     return fparams, params
 
 
+# def initial_u0(z, U_g, z0, params):
+#     tau_w = 0.5 * 0.004 * params.rho * U_g ** 2
+#     u_star_ini = np.sqrt(tau_w / params.rho)
+#     return u_star_ini / params.kappa * np.log(z / z0)
+
 def initial_u0(z, U_g, z0, params):
     tau_w = 0.5 * 0.004 * params.rho * U_g ** 2
     u_star_ini = np.sqrt(tau_w / params.rho)
-    return u_star_ini / params.kappa * np.log(z / z0)
+    k = 0.01  # Adjust for steepness
+    initial_u0 = U_g * (1 - (np.exp(-k * z)))
+    # initial_u0[:1] = 0 
+    return initial_u0
+
 
 def initial_T0(z, T_ground, cut_height):
     gamma = 0.01  # K/m
@@ -165,11 +180,39 @@ def initial_T0(z, T_ground, cut_height):
     T0[0:ind1 + 1] = T_ground
     return T0
 
-def initial_k0(params, z, U_g, z0, H, k_at_H=0.0, _f_m=0.1):
-    tau_w = 0.5 * 0.004 * params.rho * U_g ** 2
-    u_star_ini = np.sqrt(tau_w / params.rho)
-    k_at_z0 = u_star_ini**2/np.sqrt(_f_m)
-    func = lambda z, a, b: a*np.log(z) + b
-    a = (k_at_H - k_at_z0)/(np.log(H) - np.log(z0))
-    b = k_at_z0 - a*np.log(z0)
-    return func(z, a, b)
+
+# def initial_k0(params, z, U_g, z0, H, k_at_H=0.0, _f_m=0.1):
+#     # tau_w = 0.5 * 0.004 * params.rho * U_g ** 2
+#     # u_star_ini = np.sqrt(tau_w / params.rho)
+#     # k_at_z0 = u_star_ini**2/np.sqrt(_f_m)
+#     # func = lambda z, a, b: a*np.log(z) + b
+#     # a = (k_at_H - k_at_z0)/(np.log(H) - np.log(z0))
+#     # b = k_at_z0 - a*np.log(z0)
+#     return func(z, a, b)
+
+def initial_k0(z, a=0.4, b=250, min_k=1e-4):
+    initial_k0 = a * ((1 - (z / b)) ** 3)
+    
+    # Threshold k0 to ensure all values are >= min_k
+    initial_k0 = np.maximum(initial_k0, min_k)
+    
+    return initial_k0
+
+def calculate_cfl(z, initial_u0, dt):
+    z = z.flatten() if len(z.shape) > 1 else z
+    print("Flattened z:", z)
+
+    z = np.flip(z)
+    
+    # Ensure dz is calculated
+    dz = np.diff(z)
+    dz = np.append(dz, dz[-1])
+    
+    # Compute CFL values
+    try:
+        cfl_values = (initial_u0.vector().get_local() * dt) / dz
+        print("CFL values calculated:", cfl_values)
+    except Exception as e:
+        print(f"Error calculating CFL values: {e}")
+        raise
+    return cfl_values
